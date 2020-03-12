@@ -24,7 +24,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "usbd_cdc_if.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -34,6 +34,16 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+#define DEBUG
+#define DBG_EXTENDED
+
+#ifdef DEBUG
+#ifdef DBG_EXTENDED
+#define DBG_PRINT(format, ...) printf( "[%08lu]%s:%d:%s(): " format "\r\n", HAL_GetTick(), __FILE__, __LINE__, __func__, ##__VA_ARGS__);
+#else
+#define DBG_PRINT(format, ...) printf( "%s: " format "\r\n", __func__, ##__VA_ARGS__);
+#endif
+#endif
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -61,7 +71,13 @@ static void MX_SPI1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+int __io_putchar(int ch)
+{
+	int ret = CDC_Transmit_FS((uint8_t*)&ch, 1);
+	while(ret == USBD_BUSY)
+		ret = CDC_Transmit_FS((uint8_t*)&ch, 1);
+	return ch;
+}
 /* USER CODE END 0 */
 
 /**
@@ -71,7 +87,7 @@ static void MX_SPI1_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+  int i = 0;
   /* USER CODE END 1 */
   
 
@@ -106,6 +122,10 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  i++;
+	  printf("Hello printf %i\r\n", i);
+	  HAL_Delay(1000);
+	  DBG_PRINT("Hello DBG_PRINT: %i", i);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
